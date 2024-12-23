@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from "react-native";
-
 export default function HomeScreen() {
   const [backgroundColor, setBackgroundColor] =
     useState<string>("rgb(255,255,255)");
@@ -14,6 +13,7 @@ export default function HomeScreen() {
   useEffect(() => {
     loadInitialColor();
   }, []);
+
 
   const loadInitialColor = async () => {
     try {
