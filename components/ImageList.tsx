@@ -5,6 +5,7 @@ import { ActivityIndicator, FlatList, SafeAreaView, StyleSheet } from "react-nat
 import { ImageData } from "@/types/pixabay";
 
 const MemoizedCard = React.memo(ImageCard);
+
 interface MyFlatListProps {
   searchWord: string;
 }
@@ -15,20 +16,20 @@ export default function MyFlatList({ searchWord }: MyFlatListProps) {
   const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
-    loadData(page);
-  }, []);
-
-  useEffect(() => {
+    setPage(1);
     setData([]);
-    loadData(page);
   }, [searchWord]);
 
-  const loadData = async (page: number) => {
+  useEffect(() => {
+    loadData(page);
+  }, [page, searchWord]);
+
+  const loadData = async (currentPage: number) => {
     setLoading(true);
     try {
-      const images = await PixabayService.fetchImages(searchWord, page);
+      const images = await PixabayService.fetchImages(searchWord, currentPage);
       if (images) {
-        setData((prev)=>[...prev, ...images.hits])
+        setData((prev) => [...prev, ...images.hits]);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -37,26 +38,28 @@ export default function MyFlatList({ searchWord }: MyFlatListProps) {
     }
   };
 
-  const loadMoreData = () => {
-    if (!loading) {
-      setPage((prevPage) => prevPage + 1);
-      loadData(page + 1);
-    }
-  };
-  return (
+  const loadMoreData = (() => {
+    let canLoad = true;
+    return () => {
+      if (!loading && canLoad) {
+        canLoad = false;
+        setTimeout(() => (canLoad = true), 500); // Throttle by 500ms
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+  })();
 
+  return (
     <FlatList
       data={data}
-      renderItem={({ item }) => <MemoizedCard item={item} />} 
+      renderItem={({ item }) => <MemoizedCard item={item} />}
       keyExtractor={(item) => item.id.toString()}
-      onEndReached={loadMoreData}  
-      onEndReachedThreshold={0.3}  
+      onEndReached={loadMoreData}
+      onEndReachedThreshold={0.1}
       showsVerticalScrollIndicator={false}
-      ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}  
+      ListFooterComponent={loading ? <ActivityIndicator size="large" /> : null}
     />
   );
 }
-const styles = StyleSheet.create({
 
-	
-});
+const styles = StyleSheet.create({});
