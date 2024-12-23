@@ -36,7 +36,7 @@ export default function HomeScreen() {
       style={[styles.container, { backgroundColor }]}
       activeOpacity={1}
     >
-      <ThemedText type="title">Hello World!</ThemedText>
+      <ThemedText type="title">Hello there</ThemedText>
     </TouchableOpacity>
   );
 }
